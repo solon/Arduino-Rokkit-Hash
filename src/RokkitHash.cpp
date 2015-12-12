@@ -51,7 +51,16 @@ uint32_t rokkit (const char *data, int len) {
 	/* Main loop */
 	while (len > 0) {
 		hash  += *((uint16_t *) data);
-		tmp    = (*((uint16_t *) (data + 2)) << 11) ^ hash;
+
+		/* To make a long story short, the C standard states that the
+		 * shift operator's operands must be promoted to (unsigned) int,
+		 * which is (usually) 32 bits wide on PC and 16 on Arduino. This
+		 * results in different behaviour, since part of the result gets
+		 * truncated on Arduino, so we cast the result to make sure all
+		 * bits are kept.
+		 */
+		tmp    = ((uint32_t) (*((uint16_t*) (data + 2))) << 11) ^ hash;
+
 		hash   = (hash << 16) ^ tmp;
 		data  += 2 * 2;
 		hash  += hash >> 11;
