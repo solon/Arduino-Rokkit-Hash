@@ -39,6 +39,17 @@
 
 #include <inttypes.h>
 
-uint32_t rokkit (const char *, int);
+#define ROKKIT_ENABLE_8BIT_OPTIMIZATIONS
+#define ROKKIT_ENABLE_FLASH_FUNCTIONS
+
+uint32_t rokkit (const char *data, uint16_t len);
+
+#ifdef ROKKIT_ENABLE_FLASH_FUNCTIONS
+
+#include <Arduino.h>
+
+uint32_t rokkit (const __FlashStringHelper *data, uint16_t len);
+
+#endif
 
 #endif
