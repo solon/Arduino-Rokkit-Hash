@@ -40,7 +40,7 @@ uint32_t rokkit (const char *data, uint16_t len) {
 
 	/* Main loop */
 	while (len > 0) {
-		hash  += * ((uint16_t *) data);
+		hash += *((uint16_t *) data);
 
 		/* To make a long story short, the C standard states that the
 		 * shift operator's operands must be promoted to (unsigned) int,
@@ -49,11 +49,11 @@ uint32_t rokkit (const char *data, uint16_t len) {
 		 * truncated on Arduino, so we cast the result to make sure all
 		 * bits are kept.
 		 */
-		tmp    = ((uint32_t) (* ((uint16_t *) (data + 2))) << 11) ^ hash;
+		tmp = ((uint32_t) (*((uint16_t *) (data + 2))) << 11) ^ hash;
 
-		hash   = (hash << 16) ^ tmp;
-		data  += 2 * 2;
-		hash  += hash >> 11;
+		hash = (hash << 16) ^ tmp;
+		data += 2 * sizeof (uint16_t);
+		hash += hash >> 11;
 		len--;
 	}
 
@@ -108,15 +108,15 @@ uint32_t rokkit (const char *data, uint16_t len) {
 
 	/* Main loop */
 	while (len > 0) {
-		// hash  += *((uint16_t*)data);
-		hash.h  += *p++;
+		// hash += *((uint16_t*)data);
+		hash.h += *p++;
 
-		// tmp    = (*((uint16_t*)(data+2)) << 11) ^ hash;
-		// hash   = (hash << 16) ^ tmp;
+		// tmp = (*((uint16_t*)(data+2)) << 11) ^ hash;
+		// hash = (hash << 16) ^ tmp;
 		// ==>
-		// hash   = (hash << 16) ^ (*((uint16_t*)(data+2)) << 11) ^ hash;
+		// hash = (hash << 16) ^ (*((uint16_t*)(data+2)) << 11) ^ hash;
 		// ==>
-		// hash   ^= (hash << 16) ^ (*((uint16_t*)(data+2)) << 11);
+		// hash ^= (hash << 16) ^ (*((uint16_t*)(data+2)) << 11);
 		//
 		// The cast is needed to make the code behave correctly
 		// on platforms where sizeof (int) != 4, see the original code
@@ -142,23 +142,22 @@ uint32_t rokkit (const char *data, uint16_t len) {
 
 	/* Handle end cases */
 	data = reinterpret_cast <char *> (p);
-
 	switch (rem) {
 		case 3:
-			hash.h += * ((uint16_t *) data);
+			hash.h += *((uint16_t *) data);
 			hash.h ^= hash.h << 16;  // todo
 			hash.h ^= ((signed char) data[2]) << 18;
 			hash.h += hash.h >> 11;  // todo
 			break;
 
 		case 2:
-			hash.h += * ((uint16_t *) data);
+			hash.h += *((uint16_t *) data);
 			hash.h ^= hash.h << 11;  // todo
 			hash.h += hash.h >> 17;  // todo
 			break;
 
 		case 1:
-			hash.h += (signed char) * data;
+			hash.h += (signed char) *data;
 			hash.h ^= hash.h << 10;  // todo
 			hash.h += hash.h >> 1;
 	}
